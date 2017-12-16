@@ -10,8 +10,8 @@ var mongoose = require('./config/mongoose');
 var morgan = require('morgan');
 var db = mongoose();
 
-var index = require('./routes/index');
-var users = require('./routes/users');
+// var index = require('./routes/index');
+// var users = require('./routes/users');
 var user = require('./routes/user');
 var table = require('./routes/table');
 
@@ -42,8 +42,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', index);
-app.use('/users', users);
+// app.use('/', index);
+// app.use('/users', users);
 app.use('/user', user);
 app.use('/table', table);
 

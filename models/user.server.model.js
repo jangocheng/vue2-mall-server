@@ -13,5 +13,5 @@ var UserSchema = new mongoose.Schema({
     LoastLogin: { type: Date, default: Date.now }
 });
 
-// 返回另一个Model实例
+// 返回另一个Model实例 [Users就是表名 MongooDB会自动加上s => 表名变成复数]
 mongoose.model('User', UserSchema);

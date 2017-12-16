@@ -33,6 +33,7 @@ router.post('/login', function (req, res, next) {
     });
 });
 
+// 获取用户信息
 router.get('/info', function (req, res, next) {
     console.log(req.query);
     var data = {
@@ -42,7 +43,7 @@ router.get('/info', function (req, res, next) {
                 "admin"
             ],
             "name": "admin",
-            "avatar": "https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif"
+            "avatar": "/images/DDD.jpg"
         }
     }
     res.json(data);

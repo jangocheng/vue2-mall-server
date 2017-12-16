@@ -11,6 +11,7 @@ module.exports = function () {
         console.log("——数据库连接成功！——");
     });
     require('../models/user.server.model');
+    require('../models/table.server.model');
     // 返回数据库实例
     return db;
 };
