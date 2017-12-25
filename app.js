@@ -7,13 +7,12 @@ var bodyParser = require('body-parser');
 
 // Mongoose 配置
 var mongoose = require('./config/mongoose');
-var morgan = require('morgan');
 var db = mongoose();
 
 // var index = require('./routes/index');
-// var users = require('./routes/users');
 var user = require('./routes/user');
 var table = require('./routes/table');
+var goods = require('./routes/goods');
 
 var app = express();
 app.all('*', (req, res, next) => {
@@ -29,12 +28,13 @@ app.all('*', (req, res, next) => {
   }
 });
 
-// view engine setup
+// view engine setup [视图引擎设置]
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+// 使用 morgan 将请求日志打印到控制台
 app.use(logger('dev'));
 // 解析post请求参数值
 app.use(bodyParser.json());
@@ -43,12 +43,9 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // app.use('/', index);
-// app.use('/users', users);
 app.use('/user', user);
 app.use('/table', table);
-
-// 使用 morgan 将请求日志打印到控制台
-app.use(morgan('dev'));
+// app.use('/goods', goods);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -8,8 +8,8 @@
 var mongoose = require('mongoose');
 
 var UserSchema = new mongoose.Schema({
-    userName: String,
-    passWord: Number | String,
+    userName: { type: String, require: true },// 不可为空约束
+    passWord: { type: String, require: true },
     LoastLogin: { type: Date, default: Date.now }
 });
 
