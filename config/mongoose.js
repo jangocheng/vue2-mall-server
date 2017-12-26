@@ -12,6 +12,7 @@ module.exports = function () {
     });
     require('../models/user.server.model');
     require('../models/table.server.model');
+    require('../models/goods.server.model');
     // 返回数据库实例
     return db;
 };

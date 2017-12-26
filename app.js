@@ -29,7 +29,8 @@ app.all('*', (req, res, next) => {
 });
 
 // view engine setup [视图引擎设置]
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(__dirname, 'views')); // 视图指向views
+// app.engine('.html', ejs.__express); // 设置后缀
 app.set('view engine', 'jade');
 
 // uncomment after placing your favicon in /public
@@ -45,7 +46,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // app.use('/', index);
 app.use('/user', user);
 app.use('/table', table);
-// app.use('/goods', goods);
+app.use('/goods', goods);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
