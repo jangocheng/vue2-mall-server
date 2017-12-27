@@ -9,7 +9,7 @@ let GoodsController = {
         let skip = (page - 1) * pageSize;
         console.log(req.query);
         let GoodsListModel = GoodsList.find({}).skip(skip).limit(pageSize);
-        GoodsListModel.sort({'salePrice': sort});
+        GoodsListModel.sort({ 'salePrice': sort });
         GoodsListModel.exec(function (err, docs) {
             if (err) {
                 res.json({ code: 0, msg: err.message });
@@ -19,6 +19,11 @@ let GoodsController = {
                 res.json(data)
             }
         });
+    },
+
+    getDetail(req, res, next) {
+        let goodsId = req.query.id
+        console.log(req.query);
     }
 };
 
