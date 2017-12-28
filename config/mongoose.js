@@ -10,8 +10,7 @@ module.exports = function () {
     db.connection.on("open", function () {
         console.log("——数据库连接成功！——");
     });
-    require('../models/user.server.model');
-    require('../models/table.server.model');
+    
     require('../models/goods.server.model');
     // 返回数据库实例
     return db;
