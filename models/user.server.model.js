@@ -9,16 +9,16 @@ let mongoose = require('mongoose');
 
 let UserSchema = new mongoose.Schema({
     user_id: String,
-    name: String,
-    password: String,
+    user_name: String,
+    user_password: String,
     orderList: Array,
     cart_list: [{
         product_id: String,
         product_name: String,
-        salePrice: String,
+        sale_price: Number,
         product_images: String,
         checked: String,
-        product_number: String
+        product_number: Number
     }],
     address_list: Array
 });

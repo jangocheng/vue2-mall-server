@@ -8,12 +8,12 @@
 let mongoose = require('mongoose');
 
 let GoodsListSchema = new mongoose.Schema({
-    productId: String,
-    productName: String,
-    salePrice: Number,
+    product_id: String,
+    product_name: String,
+    sale_price: Number,
     checked: String,
-    productNum: Number,
-    productImage: String
+    product_number: Number,
+    product_image: String
 });
 
 // let GoodsDetailSchema = new mongoose.Schema({
@@ -21,6 +21,6 @@ let GoodsListSchema = new mongoose.Schema({
 //     type: String
 // })
 
-// 返回另一个Model实例 [Goods 就是表名 MongooDB会自动加上s => 表名变成复数]
+// 返回另一个Model实例 [GoodsList 就是表名 MongooDB会自动加上s => 表名变成复数]
 mongoose.model('GoodsList', GoodsListSchema);
 // mongoose.model('GoodsDetail', GoodsDetailSchema);

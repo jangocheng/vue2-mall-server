@@ -1,5 +1,6 @@
 let mongoose = require('mongoose');
 let GoodsList = mongoose.model('GoodsList');
+let User = mongoose.model('User');
 // let GoodsDetail = mongoose.model('GoodsDetail');
 
 let GoodsController = {
@@ -10,9 +11,9 @@ let GoodsController = {
         let sort = req.query.sort; // 1升序 -1降序
         let skip = (page - 1) * pageSize;
         console.log(req.query);
-        // let params = {salePrice: { $gt: 0, $lte: 500} } // 按价格查询
+        // let params = {salePrice: { $gt: 0, $lte: 500 } } // 按价格查询
         let GoodsListModel = GoodsList.find({}).skip(skip).limit(pageSize);
-        GoodsListModel.sort({ 'salePrice': sort });
+        GoodsListModel.sort({ 'sale_price': sort });
         GoodsListModel.exec(function (err, docs) {
             if (err) {
                 res.json({ code: 0, msg: err.message });
@@ -39,8 +40,57 @@ let GoodsController = {
     },
     // 添加商品到购物车
     addCart(req, res, next) {
-        console.log(req.body);
-        res.json({ code:200, msg: '已添加到购物车' })
+        // console.log(req.body.product_id);
+        let userId = '930910';
+        let productId = req.body.product_id;
+        User.findOne({ user_id: userId }, function (err, userDocs) {
+            if (err) {
+                res.json({ code: 200, msg: err.message })
+            } else {
+                // console.log('User' + docs);
+                if (userDocs) {
+                    let goodsItem = '';
+                    userDocs.cart_list.map((item, index) => {
+                        if (item.product_id == productId) {
+                            goodsItem = item;
+                            item.product_number++;
+                        }
+                    })
+                    if (goodsItem) {
+                        console.log('购物车里已经有了');
+                        userDocs.save(function (err3, docs3) {
+                            if (err3) {
+                                res.json({ code: 200, msg: err.message })
+                            } else {
+                                res.json({ code: 200, msg: '已添加到购物车' })
+                                // console.log('DDD=>' + docs2);
+                            }
+                        });
+                    } else {
+                        GoodsList.findOne({ product_id: productId }, function (err2, docs2) {
+                            if (err2) {
+                                res.json({ code: 200, msg: err.message });
+                            } else {
+                                if (docs2) {
+                                    docs2.product_number = 1;
+                                    docs2.checked = 1;
+                                    userDocs.cart_list.push(docs2)
+                                    // User.cart_list.push(docs2);
+                                    userDocs.save(function (err3, docs3) {
+                                        if (err3) {
+                                            res.json({ code: 200, msg: err.message })
+                                        } else {
+                                            res.json({ code: 200, msg: '已添加到购物车' })
+                                            // console.log('DDD=>' + docs2);
+                                        }
+                                    });
+                                }
+                            }
+                        })
+                    }
+                }
+            }
+        })
     }
 };
 

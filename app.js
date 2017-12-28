@@ -10,8 +10,8 @@ var mongoose = require('./config/mongoose');
 var db = mongoose();
 
 // var index = require('./routes/index');
-// var user = require('./routes/user');
 // var table = require('./routes/table');
+var user = require('./routes/user');
 var goods = require('./routes/goods');
 
 var app = express();
@@ -44,8 +44,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // app.use('/', index);
-// app.use('/user', user);
 // app.use('/table', table);
+app.use('/user', user);
 app.use('/goods', goods);
 
 // catch 404 and forward to error handler
