@@ -1,7 +1,7 @@
 let mongoose = require('mongoose');
 let GoodsList = mongoose.model('GoodsList');
 let User = mongoose.model('User');
-// let GoodsDetail = mongoose.model('GoodsDetail');
+let GoodsDetail = mongoose.model('GoodsDetail');
 
 let GoodsController = {
     // 获取商品列表
@@ -27,16 +27,19 @@ let GoodsController = {
     // 获取商品详情
     getDetail(req, res, next) {
         let goodsId = req.query.id;
-        // GoodsDetail.find({}, function (err, docs) {
-        //     if (err) {
-        //         res.json({ code: 0, msg: err.message })
-        //         return next();
-        //     }
-        //     let data = { code: 200, msg: '成功', result: { list: docs } }
-        //     res.json(data);
-        // })
-        res.sendStatus(200)
-        console.log(req.query);
+        let params = { product_id: parseInt(goodsId) };
+        GoodsDetail.findOne(params, function (err, docs) {
+            if (err) {
+                res.json({ code: 0, msg: err.message })
+                return next();
+            } else {
+                let data = { code: 200, msg: '成功', result: docs }
+                // res.sendStatus(200)
+                res.json(data);
+            }
+            // console.log(docs);
+        })
+        // console.log(req.query);
     },
     // 添加商品到购物车
     addCart(req, res, next) {

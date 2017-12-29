@@ -3,6 +3,7 @@ let User = mongoose.model('User');
 
 let UserControllers = {
     login(req, res, next) {
+        console.log(req.body);
         let params = {
             user_name: req.body.username,
             user_password: req.body.password

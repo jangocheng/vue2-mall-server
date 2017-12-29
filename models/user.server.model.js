@@ -11,7 +11,7 @@ let UserSchema = new mongoose.Schema({
     user_id: String,
     user_name: String,
     user_password: String,
-    orderList: Array,
+    order_list: Array,
     cart_list: [{
         product_id: String,
         product_name: String,

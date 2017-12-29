@@ -16,11 +16,5 @@ let GoodsListSchema = new mongoose.Schema({
     product_image: String
 });
 
-// let GoodsDetailSchema = new mongoose.Schema({
-//     productId: String,
-//     type: String
-// })
-
 // 返回另一个Model实例 [GoodsList 就是表名 MongooDB会自动加上s => 表名变成复数]
 mongoose.model('GoodsList', GoodsListSchema);
-// mongoose.model('GoodsDetail', GoodsDetailSchema);
