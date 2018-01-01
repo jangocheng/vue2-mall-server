@@ -16,11 +16,20 @@ let UserSchema = new mongoose.Schema({
         product_id: String,
         product_name: String,
         sale_price: Number,
-        product_images: String,
+        product_image: String,
         checked: String,
         product_number: Number
     }],
-    address_list: Array
+    address_list: [
+        {
+            address_id: Number,
+            consignee_name: String,
+            street_address: String,
+            postCode: Number,
+            phone: Number,
+            is_default: Boolean
+        }
+    ]
 });
 
 /**************************************************
