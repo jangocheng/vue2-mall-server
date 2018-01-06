@@ -1,12 +1,17 @@
-let mongoose = require('mongoose');
-let User = mongoose.model('User');
-let GoodsList = mongoose.model('GoodsList');
+var mongoose = require('mongoose');
+var User = mongoose.model('User');
+var GoodsList = mongoose.model('GoodsList');
 
-let UserControllers = {
-    // 登录
+var UserControllers = {
+    /***********************************
+     * @name 登录
+     * @author DDD
+     * @param {username} 用户名
+     * @param {password} 密码
+     ***********************************/
     login(req, res, next) {
         console.log(req.body);
-        let params = {
+        var params = {
             user_name: req.body.username,
             user_password: req.body.password
         }
@@ -40,7 +45,7 @@ let UserControllers = {
     // 查询用户登录状态
     checkLogin(req, res, next) {
         console.log(req.headers.authorization);
-        let userId = req.headers.authorization;
+        var userId = req.headers.authorization;
         if (userId) {
             res.json({ code: 200, msg: '用户已登录', result: '' });
         } else {
@@ -50,7 +55,7 @@ let UserControllers = {
     // 获取用户收货地址
     getAddress(req, res, next) {
         console.log(req.headers.authorization);
-        let params = { user_id: req.headers.authorization }
+        var params = { user_id: req.headers.authorization }
         User.findOne(params, function (err, docs) {
             if (err) {
                 return next();
@@ -63,7 +68,7 @@ let UserControllers = {
     // 设置默认收货地址
     setDefault(req, res, next) {
         console.log(req.body);
-        let userId = req.headers.authorization;
+        var userId = req.headers.authorization;
         var addressId = req.body.address_id;
         if (!addressId) {
             res.json({ code: 200, msg: '地址id为空', result: '' })
@@ -91,11 +96,16 @@ let UserControllers = {
             })
         }
     },
-    // 删除收货地址
+    /***********************************
+     * @name 删除收货地址
+     * @author DDD
+     * @param {authorization} 用户id
+     * @param {addressId} 地址id
+     ***********************************/
     removeAddress(req, res, next) {
         console.log(req.body);
-        let userId = req.headers.authorization;
-        let addressId = { address_id: req.body.addressId }
+        var userId = req.headers.authorization;
+        var addressId = { address_id: req.body.addressId }
         if (!req.body.addressId) {
             res.json({ code: 200, msg: '缺少addressId参数', result: '' });
         } else {
@@ -113,18 +123,67 @@ let UserControllers = {
             );
         }
     },
+    /***********************************
+     * @name 新增收货地址
+     * @author DDD
+     * @param {authorization} 用户id
+     * @param {consignee_name} 收货人姓名
+     * @param {street_address} 收货人地址
+     * @param {phone} 收货人联系电话
+     * @param {is_default} 是否设为默认地址
+     ***********************************/
+    addAddress(req, res, next) {
+        var userId = req.headers.authorization;
+        var consigneeName = req.body.consigneeName;
+        var streetAddress = req.body.streetAddress;
+        var phone = parseInt(req.body.phone);
+        var isDefault = req.body.isDefault;
+        console.log(req.body);
+        if (userId && consigneeName && streetAddress && phone) {
+            User.findOne({ user_id: userId }, function (err, docs) {
+                if (err) {
+                    res.json({ code: 200, msg: err.message, result: '' });
+                } else {
+                    // 如果用户设为默认把数据库中其他的都设为false
+                    if (isDefault) {
+                        docs.address_list.map((item, index) => {
+                            item.is_default = false
+                        });
+                    }
+                    docs.address_list.push({
+                        address_id: docs.address_list.length + 1,
+                        consignee_name: consigneeName,
+                        street_address: streetAddress,
+                        postCode: 1,
+                        phone: phone,
+                        is_default: isDefault,
+                    });
+                    docs.save(function (err2, docs2) {
+                        if (err2) {
+                            res.json({ code: 200, msg: err.message });
+                        } else {
+                            res.json({ code: 200, msg: '添加成功!' });
+                        }
+                    });
+                    // console.log(docs.address_list);
+                }
+            });
+        } else {
+            res.json({ code: 400, msg: '缺少参数' });
+        }
+    },
     // 添加商品到购物车
     addCart(req, res, next) {
         // console.log(req.body.product_id);
-        let userId = req.headers.authorization;
-        let productId = req.body.product_id;
+        var userId = req.headers.authorization;
+        var productId = req.body.product_id;
         User.findOne({ user_id: userId }, function (err, userDocs) {
             if (err) {
                 res.json({ code: 200, msg: err.message })
             } else {
                 // console.log('User' + docs);
                 if (userDocs) {
-                    let goodsItem = '';
+                    var goodsItem = '';
                     userDocs.cart_list.map((item, index) => {
                         if (item.product_id == productId) {
                             goodsItem = item;
@@ -168,7 +227,7 @@ let UserControllers = {
     },
     // 购物车列表
     getCartList(req, res, next) {
-        let param = { user_id: req.body.user_id }
+        var param = { user_id: req.body.user_id }
         User.findOne(param, function (err, docs) {
             if (err) {
                 res.json({ code: 200, msg: err.message })
@@ -184,9 +243,9 @@ let UserControllers = {
     // 编辑购物车内的商品
     editCart(req, res, next) {
         console.log(req.body);
-        let userId = req.headers.authorization;
-        let productId = req.body.product_id;
-        let productNum = req.body.product_number;
+        var userId = req.headers.authorization;
+        var productId = req.body.product_id;
+        var productNum = req.body.product_number;
         User.update(
             { 'user_id': userId, 'cart_list.product_id': productId },
             { 'cart_list.$.product_number': productNum }, // $ 占位符
@@ -201,8 +260,8 @@ let UserControllers = {
     },
     // 删除购物车商品
     deleteCart(req, res, next) {
-        let userId = req.headers.authorization;
-        let productId = { product_id: req.body.product_id }
+        var userId = req.headers.authorization;
+        var productId = { product_id: req.body.product_id }
         console.log(req.body)
         // $pull 删除
         User.update(
@@ -224,13 +283,13 @@ let UserControllers = {
     // 购物车数量
     getCartCount(req, res, next) {
         console.log(req.query);
-        let userId = req.headers.authorization;
+        var userId = req.headers.authorization;
         if (userId) {
             User.findOne({ user_id: userId }, function (err, docs) {
                 if (err) {
                     return next();
                 } else {
-                    let cartCount = 0;
+                    var cartCount = 0;
                     docs.cart_list.forEach(item => {
                         cartCount += parseInt(item.product_number);
                     });
@@ -241,7 +300,7 @@ let UserControllers = {
         } else {
             res.json({ code: 200, msg: '查询购物车数量时缺少用户Id', result: '' })
         }
-    }
+    },
 }
 
 module.exports = UserControllers;

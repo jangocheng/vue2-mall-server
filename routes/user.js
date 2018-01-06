@@ -1,7 +1,7 @@
-let express = require('express');
-let router = express.Router();
+var express = require('express');
+var router = express.Router();
 
-let user = require('../controllers/user.server.controller');
+var user = require('../controllers/user.server.controller');
 
 // 登录
 router.post('/login', user.login);
@@ -15,6 +15,8 @@ router.get('/address', user.getAddress);
 router.post('/setDefault', user.setDefault);
 // 删除收货地址
 router.post('/removeAddress', user.removeAddress);
+// 新增收货地址
+router.post('/addAddress', user.addAddress);
 // 购物车列表
 router.post('/cartList', user.getCartList);
 // 商品加入购物车

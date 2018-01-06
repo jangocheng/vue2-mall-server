@@ -5,9 +5,9 @@
  * model  表明是一个Model
  * js     文件名
  *************************/
-let mongoose = require('mongoose');
+var mongoose = require('mongoose');
 
-let GoodsDetailSchema = new mongoose.Schema({
+var GoodsDetailSchema = new mongoose.Schema({
     product_id: String,
     name: String,
     key: String,

@@ -5,9 +5,9 @@
  * model  表明是一个Model
  * js     文件名
  *************************/
-let mongoose = require('mongoose');
+var mongoose = require('mongoose');
 
-let UserSchema = new mongoose.Schema({
+var UserSchema = new mongoose.Schema({
     user_id: String,
     user_name: String,
     user_password: String,
@@ -24,7 +24,7 @@ let UserSchema = new mongoose.Schema({
         {
             address_id: Number,
             consignee_name: String,
-            street_address: String,
+            street_address: { type: String, require: true },
             postCode: Number,
             phone: Number,
             is_default: Boolean
