@@ -15,10 +15,8 @@ var UserControllers = {
             user_name: req.body.username,
             user_password: req.body.password
         }
-        User.findOne(params, (err, docs) => {
-            if (err) {
-                return next();
-            } else {
+        User.findOne(params)
+            .then(function (docs) {
                 if (docs) {
                     res.json({
                         code: 200,
@@ -29,10 +27,13 @@ var UserControllers = {
                         }
                     });
                 } else {
-                    res.json({ code: 100, msg: '账号或密码错误', result: {} })
+                    res.json({ code: 400, msg: '账号或密码错误', result: '' });
                 }
-            }
-        });
+            })
+            .catch(function(err) {
+                // 处理error
+                res.json({ code: 400, msg: 'Error:' + err.message, result: '' });
+            })
     },
     // 登出
     logout(req, res, next) {
@@ -55,28 +56,31 @@ var UserControllers = {
     // 获取用户收货地址
     getAddress(req, res, next) {
         console.log(req.headers.authorization);
-        var params = { user_id: req.headers.authorization }
-        User.findOne(params, function (err, docs) {
-            if (err) {
-                return next();
-            } else {
-                // console.log(docs);
+        var userId = req.headers.authorization
+        // if (!req.headers.authorization) return next();
+
+        var params = { user_id: userId }
+        User.findOne(params)
+            .then(function (docs) {
                 res.json({ code: 200, msg: '成功', result: docs.address_list })
-            }
-        })
+            })
+            .catch(function (err) {
+                // 处理error
+                res.json({ code: 200, msg: 'Error:' + err.message, result: '' });
+            })
     },
     // 设置默认收货地址
     setDefault(req, res, next) {
-        console.log(req.body);
         var userId = req.headers.authorization;
+        console.log(userId);
+        // if (!userId) return next();
+
         var addressId = req.body.address_id;
         if (!addressId) {
             res.json({ code: 200, msg: '地址id为空', result: '' })
         } else {
-            User.findOne({ user_id: userId }, function (err, docs) {
-                if (err) {
-                    return next();
-                } else {
+            User.findOne({ user_id: userId })
+                .then(function (docs) {
                     var addressList = docs.address_list;
                     addressList.map((item, index) => {
                         if (item.address_id == addressId) {
@@ -85,15 +89,18 @@ var UserControllers = {
                             item.is_default = false;
                         }
                     });
-                    docs.save(function (err1, docs) {
-                        if (err) {
-                            return next();
-                        } else {
-                            res.json({ code: 200, msg: '默认地址设置成功', result: '' });
-                        }
-                    })
-                }
-            })
+                    return docs.save();
+                })
+                .then(function (docs) {
+                    res.json({ code: 200, msg: '默认地址设置成功', result: '' });
+                })
+                .catch(function (err) {
+                    // 处理error
+                    res.json({ code: 200, msg: 'Error:' + err.message, result: '' });
+                })
+                // .finally(function (docs) {
+                //     // 最终执行代码
+                // })
         }
     },
     /***********************************
