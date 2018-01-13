@@ -9,10 +9,11 @@ var bodyParser = require('body-parser');
 var mongoose = require('./config/mongoose');
 var db = mongoose();
 
+// 路由
 // var index = require('./routes/index');
-// var table = require('./routes/table');
 var user = require('./routes/user');
 var goods = require('./routes/goods');
+var district = require('./routes/district');
 
 var app = express();
 app.all('*', (req, res, next) => {
@@ -44,9 +45,9 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // app.use('/', index);
-// app.use('/table', table);
 app.use('/user', user);
 app.use('/goods', goods);
+app.use('/district', district);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
