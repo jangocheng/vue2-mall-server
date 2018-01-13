@@ -1,5 +1,5 @@
 /*************************
- * Schema - [区]
+ * Schema - [省]
  * 命名规则
  * user   用户Model
  * server 服务器端Model
@@ -9,10 +9,9 @@
  *************************/
 var mongoose = require('mongoose');
 
-var AreaSchema = new mongoose.Schema({
-    city_id: { type: Number, require: true }, // 不可为空约束
-    area_id: { type: Number, require: true },
-    fullname: Array
+var ProvinceSchema = new mongoose.Schema({
+    provinces_id: { type: Number, require: true },
+    fullname: { type: String, require: true }, // 不可为空约束
 });
 
-mongoose.model('AreaList', AreaSchema, 'area_list');
+mongoose.model('ProvinceList', ProvinceSchema, 'province_list');
