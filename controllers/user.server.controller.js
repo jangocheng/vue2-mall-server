@@ -35,6 +35,7 @@ var UserControllers = {
                 res.json({ code: 400, msg: 'Error:' + err.message, result: '' });
             })
     },
+
     // 登出
     logout(req, res, next) {
         res.json({
@@ -43,6 +44,7 @@ var UserControllers = {
             result: ''
         })
     },
+
     // 查询用户登录状态
     checkLogin(req, res, next) {
         console.log(req.headers.authorization);
@@ -53,6 +55,7 @@ var UserControllers = {
             res.json({ code: 100, msg: '用户未登录', result: '' });
         }
     },
+
     // 获取用户收货地址
     getAddress(req, res, next) {
         console.log(req.headers.authorization);
@@ -69,6 +72,7 @@ var UserControllers = {
                 res.json({ code: 200, msg: 'Error:' + err.message, result: '' });
             })
     },
+
     // 设置默认收货地址
     setDefault(req, res, next) {
         var userId = req.headers.authorization;
@@ -77,7 +81,8 @@ var UserControllers = {
 
         var addressId = req.body.address_id;
         if (!addressId) {
-            res.json({ code: 200, msg: '地址id为空', result: '' })
+            res.json({ code: 200, msg: '地址id为空', result: '' });
+            return next();
         } else {
             User.findOne({ user_id: userId })
                 .then(function (docs) {
@@ -103,6 +108,7 @@ var UserControllers = {
                 // })
         }
     },
+
     /***********************************
      * @name 删除收货地址
      * @author DDD
@@ -115,21 +121,22 @@ var UserControllers = {
         var addressId = { address_id: req.body.addressId }
         if (!req.body.addressId) {
             res.json({ code: 200, msg: '缺少addressId参数', result: '' });
-        } else {
-            User.update(
-                { user_id: userId },
-                { $pull: { address_list: addressId } },
-                function (err, docs) {
-                    if (err) {
-                        return next();
-                    } else {
-                        // console.log(docs);
-                        res.json({ code: 200, msg: '删除成功', result: docs });
-                    }
-                }
-            );
+            return;
         }
+
+        User.update(
+            { user_id: userId },
+            { $pull: { address_list: addressId } },
+        )
+        .then(function (docs) {
+            res.json({ code: 200, msg: '删除成功', result: docs });
+        })
+        .catch(function (err) {
+            res.json({ code: 200, msg: err.message, result: '' });
+            return next();
+        })
     },
+
     /***********************************
      * @name 新增收货地址
      * @author DDD
@@ -179,6 +186,7 @@ var UserControllers = {
             res.json({ code: 400, msg: '缺少参数' });
         }
     },
+
     // 添加商品到购物车
     addCart(req, res, next) {
         // console.log(req.body.product_id);
@@ -232,81 +240,79 @@ var UserControllers = {
             }
         })
     },
+
     // 购物车列表
     getCartList(req, res, next) {
-        var param = { user_id: req.body.user_id }
-        User.findOne(param, function (err, docs) {
-            if (err) {
-                res.json({ code: 200, msg: err.message })
-                return next()
-            } else {
+        // var param = { user_id: req.body.user_id }
+        var userId = req.headers.authorization;
+        console.log(req.headers.authorization);
+        User.findOne({ user_id: userId })
+            .then(function (docs) {
                 if (docs) {
-                    res.json({ code: 200, msg: '成功', result: docs.cart_list })
+                    res.json({ code: 200, msg: '成功', result: docs.cart_list });
                 }
-                // console.log(docs);
-            }
-        })
+            })
+            .catch(function (err) {
+                res.json({ code: 200, msg: err.message });
+            })
     },
+
     // 编辑购物车内的商品
     editCart(req, res, next) {
         console.log(req.body);
         var userId = req.headers.authorization;
         var productId = req.body.product_id;
         var productNum = req.body.product_number;
+
         User.update(
             { 'user_id': userId, 'cart_list.product_id': productId },
             { 'cart_list.$.product_number': productNum }, // $ 占位符
-            function (err, docs) {
-                if (err) {
-                    return next();
-                } else {
-                    res.json({ code: 200, msg: '编辑成功', result: '' })
-                }
-            }
-        );
+        ).then(function (docs) {
+            console.log(docs);
+            res.json({ code: 200, msg: '编辑成功', result: '' });
+        }).catch(function (err) {
+            res.json({ code: 200, msg: err.message });
+        })
     },
+
     // 删除购物车商品
     deleteCart(req, res, next) {
         var userId = req.headers.authorization;
         var productId = { product_id: req.body.product_id }
         console.log(req.body)
+
         // $pull 删除
         User.update(
             { user_id: userId },
-            { $pull: { cart_list: productId } },
-            function (err, docs) {
-                if (err) {
-                    return next();
-                } else {
-                    res.json({
-                        code: 200,
-                        msg: '删除成功',
-                        result: ''
-                    })
-                }
-            }
-        );
+            { $pull: { cart_list: productId } }
+        )
+        .then(function (docs) {
+            res.json({ code: 200, msg: '删除成功', result: '' });
+        })
+        .catch(function (err) {
+            res.json({ code: 200, msg: err.message });
+        })
     },
+
     // 购物车数量
     getCartCount(req, res, next) {
         console.log(req.query);
         var userId = req.headers.authorization;
-        if (userId) {
-            User.findOne({ user_id: userId }, function (err, docs) {
-                if (err) {
-                    return next();
-                } else {
-                    var cartCount = 0;
-                    docs.cart_list.forEach(item => {
-                        cartCount += parseInt(item.product_number);
-                    });
-                    res.json({ code: 200, msg: '获取购物车数量成功', result: { cartCount: cartCount } })
-                    // console.log(cartCount);
-                }
-            });
-        } else {
-            res.json({ code: 200, msg: '查询购物车数量时缺少用户Id', result: '' })
+        if (!userId) {
+            res.json({ code: 200, msg: '查询购物车数量时缺少用户Id', result: '' });
+            return;
         }
+        User.findOne({ user_id: userId })
+            .then(function (docs) {
+                var cartCount = 0;
+                docs.cart_list.forEach(item => {
+                    cartCount += parseInt(item.product_number);
+                });
+                res.json({ code: 200, msg: '获取购物车数量成功', result: { cartCount: cartCount } });
+            })
+            .catch(function (err) {
+                res.json({ code: 200, msg: err.message });
+            })
     },
 }
 
