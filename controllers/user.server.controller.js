@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
 var GoodsList = mongoose.model('GoodsList');
+require('../utils/dateFormat');
 
 var UserControllers = {
     /***********************************
@@ -314,6 +315,60 @@ var UserControllers = {
                 res.json({ code: 200, msg: err.message });
             })
     },
+
+    // 生成订单
+    payMent(req, res, next) {
+        var userId = req.headers.authorization;
+        var orderTotal = req.body.order_total; // 订单总金额
+        var addressId = req.body.address_id; // 地址id
+        
+        User.findOne({ user_id: userId })
+            .then(function (docs) {
+                var address = '';
+                var goodsList = [];
+                // 获取当前用户地址信息
+                docs.address_list.map(function (item, index) {
+                    if (item.address_id == addressId) {
+                        address = item;
+                    }
+                });
+                // 获取用户购物车的购买商品
+                docs.cart_list.filter(function (item, index) {
+                    // checked 等于1时表示选中的商品都需要购买
+                    if (item.checked == 1) {
+                        goodsList.push(item);
+                    }
+                });
+
+                // 当前系统架构平台码
+                var platform = '628';
+                // 随机数
+                var r1 = Math.floor(Math.random() * 10);
+                var r2 = Math.floor(Math.random() * 10);
+                // 系统时间
+                var sysDate = new Date().Format('yyyyMMddhhmmss');
+                // 订单生成时间
+                var creatDate = new Date().Format('yyyy-MM-dd hh:mm:ss');
+                var orderId = platform + r1 + sysDate + r2;
+                // 需要保存的参数
+                var order = {
+                    orderId: orderId,
+                    orderTotal: orderTotal,
+                    addressInfo: address,
+                    goodsList: goodsList,
+                    orderStatus: 1,
+                    createDate: creatDate
+                }
+                docs.order_list.push(order);
+                return docs.save();
+            })
+            .then(function (order) {
+                res.json({ code: 200, msg: '订单生成成功', result: order.order_list });
+            })
+            .catch(function (err) {
+                res.json({ code: 200, msg: err, result: '' });
+            })
+    }
 }
 
 module.exports = UserControllers;

@@ -27,5 +27,7 @@ router.post('/cartEdit', user.editCart);
 router.post('/cartDelete', user.deleteCart);
 // 获取购物车数量
 router.get('/getCartCount', user.getCartCount);
+// 生成订单
+router.post('/payMent', user.payMent);
 
 module.exports = router;
