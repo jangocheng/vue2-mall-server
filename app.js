@@ -9,7 +9,7 @@ var bodyParser = require('body-parser');
 var mongoose = require('./config/mongoose');
 var db = mongoose();
 
-// 路由
+// 路由管理
 // var index = require('./routes/index');
 var user = require('./routes/user');
 var goods = require('./routes/goods');
@@ -44,6 +44,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// 路由监听
 // app.use('/', index);
 app.use('/user', user);
 app.use('/goods', goods);
