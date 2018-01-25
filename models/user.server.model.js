@@ -25,6 +25,9 @@ var UserSchema = new mongoose.Schema({
         {
             address_id: Number,
             consignee_name: String,
+            provinces_id: Number,
+            city_id: Number,
+            area_id: Number,
             street_address: { type: String, require: true },
             postCode: Number,
             phone: Number,

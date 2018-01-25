@@ -39,17 +39,14 @@ var UserControllers = {
 
     // 登出
     logout(req, res, next) {
-        res.json({
-            code: 200,
-            msg: '登出成功',
-            result: ''
-        })
+        res.json({ code: 200, msg: '登出成功', result: '' });
     },
 
     // 查询用户登录状态
     checkLogin(req, res, next) {
         console.log(req.headers.authorization);
         var userId = req.headers.authorization;
+        
         if (userId) {
             res.json({ code: 200, msg: '用户已登录', result: '' });
         } else {
@@ -66,7 +63,10 @@ var UserControllers = {
         var params = { user_id: userId }
         User.findOne(params)
             .then(function (docs) {
-                res.json({ code: 200, msg: '成功', result: docs.address_list })
+                // docs.address_list.map((item, index) => {
+                //     var provinces_id = item.provinces_id;
+                // });
+                res.json({ code: 200, msg: '成功', result: docs.address_list });
             })
             .catch(function (err) {
                 // 处理error
@@ -118,7 +118,7 @@ var UserControllers = {
      ***********************************/
     removeAddress(req, res, next) {
         console.log(req.body);
-        var userId = req.headers.authorization;
+        var userId    = req.headers.authorization;
         var addressId = { address_id: req.body.addressId }
         if (!req.body.addressId) {
             res.json({ code: 200, msg: '缺少addressId参数', result: '' });
@@ -148,41 +148,48 @@ var UserControllers = {
      * @param {is_default} 是否设为默认地址
      ***********************************/
     addAddress(req, res, next) {
-        var userId = req.headers.authorization;
-        var consigneeName = req.body.consigneeName;
-        var streetAddress = req.body.streetAddress;
-        var phone = parseInt(req.body.phone);
-        var isDefault = req.body.isDefault;
+        var userId        = req.headers.authorization;
+        var consigneeName = req.body.consigneeName; // 收货人姓名
+        var provincesId   = req.body.provincesId; // 省份id
+        var cityId        = req.body.cityId; // 城市id
+        var areaId        = req.body.areaId; // 区域id
+        var streetAddress = req.body.streetAddress; // 详细地址
+        var phone         = parseInt(req.body.phone); // 手机号码
+        var isDefault     = req.body.isDefault; // 是否设为默认
+
         console.log(req.body);
+        // return;
         if (userId && consigneeName && streetAddress && phone) {
-            User.findOne({ user_id: userId }, function (err, docs) {
-                if (err) {
-                    res.json({ code: 200, msg: err.message, result: '' });
-                } else {
-                    // 如果用户设为默认把数据库中其他的都设为false
+            User.findOne({ user_id: userId })
+                .then(function (docs) {
+                    // 如果用户设为默认其他的都设为false
                     if (isDefault) {
                         docs.address_list.map((item, index) => {
                             item.is_default = false
                         });
                     }
+
+                    // 新增地址
                     docs.address_list.push({
-                        address_id: docs.address_list.length + 1,
-                        consignee_name: consigneeName,
-                        street_address: streetAddress,
-                        postCode: 1,
-                        phone: phone,
-                        is_default: isDefault,
+                        address_id: docs.address_list.length + 1, // 地址id自增
+                        consignee_name: consigneeName, // 收货人姓名
+                        provinces_id: provincesId, // 省份id
+                        city_id: cityId, // 城市id
+                        area_id: areaId, // 区域id
+                        street_address: streetAddress, // 详细地址
+                        postCode: 1, // 邮政编码
+                        phone: phone, // 手机号码
+                        is_default: isDefault, // 是否默认
                     });
-                    docs.save(function (err2, docs2) {
-                        if (err2) {
-                            res.json({ code: 200, msg: err.message });
-                        } else {
-                            res.json({ code: 200, msg: '添加成功!' });
-                        }
-                    });
-                    // console.log(docs.address_list);
-                }
-            });
+
+                    return docs.save();
+                })
+                .then(function (docs) {
+                    res.json({ code: 200, msg: '添加成功!' });
+                })
+                .catch(function (err) {
+                    res.json({ code: 200, msg: err.message, result: '' });
+                })
         } else {
             res.json({ code: 400, msg: '缺少参数' });
         }
@@ -190,56 +197,52 @@ var UserControllers = {
 
     // 添加商品到购物车
     addCart(req, res, next) {
-        // console.log(req.body.product_id);
-        var userId = req.headers.authorization;
-        var productId = req.body.product_id;
-        User.findOne({ user_id: userId }, function (err, userDocs) {
-            if (err) {
-                res.json({ code: 200, msg: err.message })
-            } else {
-                // console.log('User' + docs);
-                if (userDocs) {
-                    var goodsItem = '';
-                    userDocs.cart_list.map((item, index) => {
-                        if (item.product_id == productId) {
-                            goodsItem = item;
-                            item.product_number++;
-                        }
-                    })
-                    if (goodsItem) {
-                        console.log('购物车里已经有了');
-                        userDocs.save(function (err3, docs3) {
-                            if (err3) {
-                                res.json({ code: 200, msg: err.message })
-                            } else {
-                                res.json({ code: 200, msg: '已添加到购物车' })
-                            }
-                        });
-                    } else {
-                        GoodsList.findOne({ product_id: productId }, function (err2, docs2) {
-                            if (err2) {
-                                res.json({ code: 200, msg: err.message });
-                            } else {
-                                if (docs2) {
-                                    docs2.product_number = 1;
-                                    docs2.checked = 1;
-                                    userDocs.cart_list.push(docs2)
-                                    // User.cart_list.push(docs2);
-                                    userDocs.save(function (err3, docs3) {
-                                        if (err3) {
-                                            res.json({ code: 200, msg: err.message })
-                                        } else {
-                                            res.json({ code: 200, msg: '已添加到购物车' })
-                                            // console.log('DDD=>' + docs2);
-                                        }
-                                    });
-                                }
+        console.log(req.body);
+        var userId          = req.headers.authorization;
+        var productId       = req.body.product_id; // 商品id
+        var specificationId = req.body.specification_id; // 商品规格id
+        var quantity        = parseInt(req.body.pur_quantity); // 商品数量
+
+        User.findOne({ user_id: userId })
+            .then(function (userDocs) {
+                if (!userDocs) return next();
+                var goodsItem = '';
+                userDocs.cart_list.map((item, index) => {
+                    if (item.product_id == productId) {
+                        goodsItem = item;
+                        // 增加的商铺数量
+                        item.product_number += quantity;
+                    }
+                });
+
+                // 判断购物车里是否存在当前添加的商品
+                if (goodsItem) {
+                    console.log('购物车里已经有了');
+                    // 购物车已有时叠加
+                    return userDocs.save();
+                } else {
+                    // 购物车没有时新增
+                    GoodsList.findOne({ product_id: productId })
+                        .then(function (docs2) {
+                            if (docs2) {
+                                docs2.product_number = quantity;
+                                docs2.checked = 1;
+                                userDocs.cart_list.push(docs2);
+                                return userDocs.save();
                             }
                         })
-                    }
+                        .catch(function (err) {
+                            res.json({ code: 200, msg: err.message });
+                        })
                 }
-            }
-        })
+            })
+            .then(function (docs) {
+                res.json({ code: 200, msg: '已添加到购物车' });
+            })
+            .catch(function (err) {
+                // 处理error
+                res.json({ code: 200, msg: 'Error:' + err.message, result: '' });
+            })
     },
 
     // 购物车列表
@@ -247,6 +250,7 @@ var UserControllers = {
         // var param = { user_id: req.body.user_id }
         var userId = req.headers.authorization;
         console.log(req.headers.authorization);
+
         User.findOne({ user_id: userId })
             .then(function (docs) {
                 if (docs) {
@@ -261,8 +265,8 @@ var UserControllers = {
     // 编辑购物车内的商品
     editCart(req, res, next) {
         console.log(req.body);
-        var userId = req.headers.authorization;
-        var productId = req.body.product_id;
+        var userId     = req.headers.authorization;
+        var productId  = req.body.product_id;
         var productNum = req.body.product_number;
 
         User.update(
@@ -278,7 +282,7 @@ var UserControllers = {
 
     // 删除购物车商品
     deleteCart(req, res, next) {
-        var userId = req.headers.authorization;
+        var userId    = req.headers.authorization;
         var productId = { product_id: req.body.product_id }
         console.log(req.body)
 
@@ -318,9 +322,9 @@ var UserControllers = {
 
     // 生成订单
     payMent(req, res, next) {
-        var userId = req.headers.authorization;
+        var userId     = req.headers.authorization;
         var orderTotal = req.body.order_total; // 订单总金额
-        var addressId = req.body.address_id; // 地址id
+        var addressId  = req.body.address_id; // 地址id
         
         User.findOne({ user_id: userId })
             .then(function (docs) {
@@ -352,12 +356,12 @@ var UserControllers = {
                 var orderId = platform + r1 + sysDate + r2;
                 // 需要保存的参数
                 var order = {
-                    orderId: orderId,
-                    orderTotal: orderTotal,
-                    addressInfo: address,
-                    goodsList: goodsList,
-                    orderStatus: 1,
-                    createDate: creatDate
+                    orderId: orderId, // 订单号
+                    orderTotal: orderTotal, // 订单总金额
+                    addressInfo: address, // 地址信息
+                    goodsList: goodsList, // 商品列表
+                    orderStatus: 1, // 订单状态
+                    createDate: creatDate // 创建时间
                 }
                 docs.order_list.push(order);
                 return docs.save();
