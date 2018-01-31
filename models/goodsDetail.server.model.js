@@ -6,6 +6,7 @@
  * js     文件名
  *************************/
 var mongoose = require('mongoose');
+var Promise = require("bluebird");
 
 var GoodsDetailSchema = new mongoose.Schema({
     product_id: String,
@@ -42,10 +43,14 @@ var GoodsDetailSchema = new mongoose.Schema({
     sale_attr: Array
 });
 
+var GoodsDetail = mongoose.model('GoodsDetail', GoodsDetailSchema, 'goods_detail');
+// promise化user类及其方法
+Promise.promisifyAll(GoodsDetail);
+Promise.promisifyAll(GoodsDetail.prototype);
 /**************************************************
  * - 返回另一个 Model 实例 [不写第三个参数时， User 就是表名 MongooDB会自动加上s => 表名变成复数]
  * params1 [Model的名字]
  * params2 [Schema的规则 规定的字段]
  * params3 [数据库的表名]
  **************************************************/
-module.exports = mongoose.model('GoodsDetail', GoodsDetailSchema, 'goods_detail');
+module.exports = GoodsDetail;

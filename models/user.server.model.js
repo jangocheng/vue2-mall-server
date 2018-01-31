@@ -6,7 +6,7 @@
  * js     文件名
  *************************/
 var mongoose = require('mongoose');
-var Promise = require("bluebird")
+var Promise = require("bluebird");
 
 var UserSchema = new mongoose.Schema({
     user_id: String,
@@ -16,10 +16,11 @@ var UserSchema = new mongoose.Schema({
     cart_list: [{
         product_id: String,
         product_name: String,
-        sale_price: Number,
-        product_image: String,
+        // sale_price: Number,
+        // product_image: String,
         checked: String,
-        product_number: Number
+        product_number: Number,
+        specification: Object
     }],
     address_list: [
         {

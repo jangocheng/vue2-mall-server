@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
 var GoodsList = mongoose.model('GoodsList');
+var GoodsDetail = mongoose.model('GoodsDetail');
 require('../utils/dateFormat');
 
 var UserControllers = {
@@ -115,21 +116,29 @@ var UserControllers = {
      * @author DDD
      * @param {authorization} 用户id
      * @param {addressId} 地址id
+     * @param {is_default} 是否删除默认地址
      ***********************************/
     removeAddress(req, res, next) {
         console.log(req.body);
         var userId    = req.headers.authorization;
-        var addressId = { address_id: req.body.addressId }
+        var addressId = { address_id: req.body.addressId };
+        var isDefault = { is_default: req.body.is_default };
         if (!req.body.addressId) {
             res.json({ code: 200, msg: '缺少addressId参数', result: '' });
             return;
         }
 
+        // 这里还需要判断是否删除的是默认地址
+        // 删除默认地址后需要设置一个默认值
         User.update(
             { user_id: userId },
-            { $pull: { address_list: addressId } },
+            { $pull: { address_list: addressId } }
         )
         .then(function (docs) {
+            // if (isDefault) {
+            //     console.log('DDD' + JSON.stringify(docs));
+            //     docs[0].is_default = isDefault;
+            // }
             res.json({ code: 200, msg: '删除成功', result: docs });
         })
         .catch(function (err) {
@@ -221,16 +230,41 @@ var UserControllers = {
                     // 购物车已有时叠加
                     return userDocs.save();
                 } else {
-                    // 购物车没有时新增
-                    GoodsList.findOne({ product_id: productId })
-                        .then(function (docs2) {
-                            if (docs2) {
-                                docs2.product_number = quantity;
-                                docs2.checked = 1;
-                                userDocs.cart_list.push(docs2);
-                                return userDocs.save();
+                    // 购物车没有时新增[GoodsDetail模型]
+                    var specification = '';
+                    GoodsDetail.findOne({ product_id: productId })
+                        .then(function (docs) {
+                            if (docs.specification.length == 1) {
+                                specification = docs.specification[0];
+                            } else {
+                                docs.specification.map((item, index) => {
+                                    if (item.id == specificationId) {
+                                        specification = item
+                                    }
+                                });
                             }
+                            var schema = {
+                                product_id: docs.product_id,
+                                product_name: docs.title,
+                                checked: 1,
+                                product_number: quantity,
+                                specification: specification
+                            };
+                            userDocs.cart_list.push(schema);
+                            return userDocs.save();
+                            
+                            // return GoodsList.findOne({ product_id: productId });
                         })
+                        // .then(function (docs2) {
+                        //     if (docs2) {
+                        //         docs2.product_number = quantity;
+                        //         docs2.checked = 1;
+                        //         docs2.specification = specification;
+                        //         userDocs.cart_list.push(docs2);
+                        //         // console.log(userDocs.cart_list);
+                        //         return userDocs.save();
+                        //     }
+                        // })
                         .catch(function (err) {
                             res.json({ code: 200, msg: err.message });
                         })

@@ -13,7 +13,8 @@ var GoodsListSchema = new mongoose.Schema({
     sale_price: Number,
     checked: String,
     product_number: Number,
-    product_image: String
+    product_image: String,
+    specification: Object
 });
 
 // 返回另一个Model实例 [GoodsList 就是表名 MongooDB会自动加上s => 表名变成复数]
