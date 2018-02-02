@@ -135,15 +135,14 @@ var UserControllers = {
             { $pull: { address_list: addressId } }
         )
         .then(function (docs) {
-            // if (isDefault) {
-            //     console.log('DDD' + JSON.stringify(docs));
-            //     docs[0].is_default = isDefault;
-            // }
+            if (isDefault) {
+                console.log('DDD' + JSON.stringify(docs));
+                // docs[0].is_default = isDefault;
+            }
             res.json({ code: 200, msg: '删除成功', result: docs });
         })
         .catch(function (err) {
             res.json({ code: 200, msg: err.message, result: '' });
-            return next();
         })
     },
 
@@ -252,21 +251,9 @@ var UserControllers = {
                             };
                             userDocs.cart_list.push(schema);
                             return userDocs.save();
-                            
-                            // return GoodsList.findOne({ product_id: productId });
                         })
-                        // .then(function (docs2) {
-                        //     if (docs2) {
-                        //         docs2.product_number = quantity;
-                        //         docs2.checked = 1;
-                        //         docs2.specification = specification;
-                        //         userDocs.cart_list.push(docs2);
-                        //         // console.log(userDocs.cart_list);
-                        //         return userDocs.save();
-                        //     }
-                        // })
                         .catch(function (err) {
-                            res.json({ code: 200, msg: err.message });
+                            res.json({ code: 200, msg: err.message, result: '' });
                         })
                 }
             })
@@ -281,7 +268,6 @@ var UserControllers = {
 
     // 购物车列表
     getCartList(req, res, next) {
-        // var param = { user_id: req.body.user_id }
         var userId = req.headers.authorization;
         console.log(req.headers.authorization);
 
