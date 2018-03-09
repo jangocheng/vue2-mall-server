@@ -2,6 +2,7 @@ var mongoose = require('mongoose');
 var GoodsList = mongoose.model('GoodsList');
 var User = mongoose.model('User');
 var GoodsDetail = mongoose.model('GoodsDetail');
+const jwt = require('jsonwebtoken');
 
 var GoodsController = {
     // 获取商品列表
@@ -11,12 +12,13 @@ var GoodsController = {
         var sort = req.query.sort || 1; // 1升序 -1降序
         var skip = (page - 1) * pageSize; // 跳过多少条
         console.log(req.query);
-        // var params = {sale_price: { $gt: 0, $lte: 500 } } // 按价格查询 [0 - 500]
+        
+        var params = {sale_price: { $gt: 0, $lte: 500 } } // 按价格查询 [0 - 500]
         var GoodsListModel = GoodsList.find({}).skip(skip).limit(pageSize);
         GoodsListModel.sort({ 'sale_price': sort });
         GoodsListModel.exec(function (err, docs) {
             if (err) {
-                res.json({ code: 0, msg: err.message });
+                res.json({ code: 0, msg: err.msg });
                 return next();
             } else {
                 var data = { code: 200, msg: '成功', result: { count: docs.length, list: docs } }
