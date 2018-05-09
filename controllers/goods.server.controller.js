@@ -2,7 +2,6 @@ var mongoose = require('mongoose');
 var GoodsList = mongoose.model('GoodsList');
 var User = mongoose.model('User');
 var GoodsDetail = mongoose.model('GoodsDetail');
-const jwt = require('jsonwebtoken');
 
 var GoodsController = {
     // 获取商品列表
@@ -15,6 +14,7 @@ var GoodsController = {
         
         var params = {sale_price: { $gt: 0, $lte: 500 } } // 按价格查询 [0 - 500]
         var GoodsListModel = GoodsList.find({}).skip(skip).limit(pageSize);
+        // console.log(GoodsListModel.schema);
         GoodsListModel.sort({ 'sale_price': sort });
         GoodsListModel.exec(function (err, docs) {
             if (err) {

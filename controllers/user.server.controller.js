@@ -20,14 +20,16 @@ var UserControllers = {
         var hmac = crypto.createHmac('md5', 'key'); // 创建一个带秘钥的sha1或者md5算法
         hmac.update(password);
         // 参数encoding（编码方式）可以为'hex', 'binary' 或者'base64'
-        var digest = hmac.digest('hex')
+        var digest = hmac.digest('hex');
         // console.log(digest);
         var params = {
             user_name: name,
             user_password: digest
         }
+
         User.findOne(params)
             .then(function (docs) {
+                console.log(docs);
                 if (docs) {
                     // 创建token
                     // console.log(docs);docs.toJSON()
@@ -35,7 +37,7 @@ var UserControllers = {
                     // 第一部分我们称它为头部（header)
                     // 第二部分我们称其为载荷（payload, 类似于飞机上承载的物品)
                     // 第三部分是签证（signature).
-                    let token = jwt.sign({ name, password }, 'app.get(superSecret)', {
+                    var token = jwt.sign({ name, password }, 'app.get(superSecret)', {
                         'expiresIn': 60*60*24 // 设置过期时间[以秒为单位]
                     });
 
@@ -313,7 +315,7 @@ var UserControllers = {
 
         User.update(
             { 'user_id': userId, 'cart_list.product_id': productId },
-            { 'cart_list.$.product_number': productNum }, // $ 占位符
+            { 'cart_list.$.product_number': productNum } // $ 占位符
         ).then(function (docs) {
             console.log(docs);
             res.json({ code: 200, msg: '编辑成功', result: '' });

@@ -9,7 +9,7 @@ router.post('/login', user.login);
 // 登出
 router.post('/logout', user.logout);
 // 查询用户登录状态
-router.get('/checkLogin', user.checkLogin);
+router.get('/checkLogin', isAuthenticated, user.checkLogin);
 // 获取用户收货地址
 router.get('/address', isAuthenticated, user.getAddress);
 // 设置默认收货地址
